@@ -10,12 +10,24 @@ define([
     	addcss();
 
     	IPython.notebook.get_cells().forEach(function(cell){
-    		addctrl(cell);
-
-
-    	
-    })
+    		addctrl(cell);   	
+    })  
+        console.log(events);
+        events.on('execute.CodeCell',addnctrl);             //code内容不可编译起作用 rel:l95
+        events.on('rendered.MarkdownCell',addnctrl);
 }	
+    
+    /*为新添加的cell或转换添加ctrl*/
+    var addnctrl = function(){
+        IPython.notebook.get_cells().forEach(function(cell){
+            var ifctrl = cell.element.find('.type_btn').length;
+            if(ifctrl == 0){
+                addctrl(cell);
+            }
+            
+            
+        })
+    }
 
     var addctrl = function(cell) {
         var type = cell.cell_type;
@@ -62,8 +74,6 @@ define([
             	content.appendTo(cell.element.find('.input_prompt'));
             	ul.appendTo(cell.element.find('.input_prompt'));
             }
-            
-
             $('.dropdown-toggle').dropdown();
             $('pover-content').css('padding','inherit');
     }
@@ -84,22 +94,16 @@ define([
         var cur = IPython.notebook.get_cell(index);
         var c_type = cur.cell_type;
         console.log(c_type);
-        switch(c_type){
+        switch(c_type){                            //转code时内容可编译走这条  rel:l16
 			case 'code':
                 setTimeout(function(){
-                addctrl(cur);
-                },0)
+                    addctrl(cur);
+                    },0)
+                
                 IPython.notebook.execute_cell();
                 break;
-			case 'markdown':    			
-                addctrl(cur);
-				break;
 		}
 	}
-
-    var codeevt = function(cell){
-
-    }
 
     var type_ctrl = function(){
     	var labels = $('.cell_type')
