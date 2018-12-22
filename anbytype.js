@@ -13,7 +13,7 @@ define([
     		addctrl(cell);   	
     })  
         console.log(events);
-        events.on('execute.CodeCell',addnctrl);             //code内容不可编译起作用 rel:l95
+        events.on('create.Cell',callback_create_cell);             //code内容不可编译起作用 rel:l95
         events.on('rendered.MarkdownCell',addnctrl);
 }	
     
@@ -24,11 +24,20 @@ define([
             if(ifctrl == 0){
                 addctrl(cell);
             }
-            
-            
         })
     }
 
+    var callback_create_cell = function(evt,data){
+        console.log(data.cell);
+        if (data.cell.cell_type == 'code') {
+            if (data.cell.element.find('type_ctrl').length == 0) {}
+                addctrl(data.cell);
+        }
+    }
+
+    var addnctrl_code = function(){
+        var cell = IPython.notebook.get_cells()[-1];
+    }
     var addctrl = function(cell) {
         var type = cell.cell_type;
             switch(type){
