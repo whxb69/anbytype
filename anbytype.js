@@ -14,10 +14,21 @@ define([
     })  
         console.log(events);
         events.on('create.Cell',callback_create_cell);             //code内容不可编译起作用 rel:l95
-        events.on('rendered.MarkdownCell',addnctrl);
+        events.on('rendered.MarkdownCell',addnctrl);				
+        events.on('execute.CodeCell',CodeAddCtrl);
 }	
-    
-    /*为新添加的cell或转换添加ctrl*/
+	/*手动编译CodeCell时添加Ctrl*/
+    var CodeAddCtrl = function(evt,data){
+    	console.log(evt);
+    	if (data.cell.cell_type == 'code') {
+            if (data.cell.element.find('type_ctrl').length == 0) {
+				setTimeout(function(){
+                    addctrl(data.cell);
+                },0)                 
+            }
+        }
+    }
+    /*为新添加的Cell或转换添加Ctrl*/
     var addnctrl = function(){
         IPython.notebook.get_cells().forEach(function(cell){
             var ifctrl = cell.element.find('.type_btn').length;
@@ -26,18 +37,14 @@ define([
             }
         })
     }
-
+    /*CodeCell不可编译时添加Ctrl*/
     var callback_create_cell = function(evt,data){
-        console.log(data.cell);
         if (data.cell.cell_type == 'code') {
             if (data.cell.element.find('type_ctrl').length == 0) {}
                 addctrl(data.cell);
         }
     }
 
-    var addnctrl_code = function(){
-        var cell = IPython.notebook.get_cells()[-1];
-    }
     var addctrl = function(cell) {
         var type = cell.cell_type;
             switch(type){
@@ -96,21 +103,9 @@ define([
 			case 'fa-code':    			
                 var index = IPython.notebook.get_selected_index();
                 IPython.notebook.to_code(index);
+                var cur = IPython.notebook.get_cell(index);
+                cur.render();
 				break;
-		}
-        IPython.notebook.execute_cell();
-        
-        var cur = IPython.notebook.get_cell(index);
-        var c_type = cur.cell_type;
-        console.log(c_type);
-        switch(c_type){                            //转code时内容可编译走这条  rel:l16
-			case 'code':
-                setTimeout(function(){
-                    addctrl(cur);
-                    },0)
-                
-                IPython.notebook.execute_cell();
-                break;
 		}
 	}
 
